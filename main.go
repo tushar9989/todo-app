@@ -6,25 +6,24 @@ import (
 
 	"github.com/julienschmidt/httprouter"
 	c "github.com/tushar9989/hullo/controllers"
+	"github.com/tushar9989/hullo/storage"
 )
 
 func main() {
-	//load creds from env
-	//load db
-	//load routes with handlers
-	router := httprouter.New()
-	router.GET("/api/lists", c.Wrapper(c.GetTaskLists, nil))
-	router.GET("/api/lists/:listId", c.Wrapper(c.GetTaskList, nil))
-	router.POST("/api/lists", c.Wrapper(c.AddTaskList, nil))
-	router.PUT("/api/lists/:listId", c.Wrapper(c.UpdateTaskList, nil))
-	router.DELETE("/api/lists/:listId", c.Wrapper(c.DeleteTaskList, nil))
+	dataSource := storage.NewMockStorage()
 
-	router.GET("/api/lists/:listId/tasks", c.Wrapper(c.GetTasks, nil))
-	router.GET("/api/lists/:listId/tasks/:taskId", c.Wrapper(c.GetTask, nil))
-	router.POST("/api/lists/:listId/tasks", c.Wrapper(c.AddTask, nil))
-	router.PUT("/api/lists/:listId/tasks/:taskId", c.Wrapper(c.UpdateTask, nil))
-	router.DELETE("/api/lists/:listId/tasks/:taskId", c.Wrapper(c.DeleteTask, nil))
-	//start server
+	router := httprouter.New()
+	router.GET("/api/lists", c.Wrapper(c.GetTaskLists, dataSource))
+	router.GET("/api/lists/:listId", c.Wrapper(c.GetTaskList, dataSource))
+	router.POST("/api/lists", c.Wrapper(c.AddTaskList, dataSource))
+	router.PUT("/api/lists/:listId", c.Wrapper(c.UpdateTaskList, dataSource))
+	router.DELETE("/api/lists/:listId", c.Wrapper(c.DeleteTaskList, dataSource))
+
+	router.GET("/api/lists/:listId/tasks", c.Wrapper(c.GetTasks, dataSource))
+	router.GET("/api/lists/:listId/tasks/:taskId", c.Wrapper(c.GetTask, dataSource))
+	router.POST("/api/lists/:listId/tasks", c.Wrapper(c.AddTask, dataSource))
+	router.PUT("/api/lists/:listId/tasks/:taskId", c.Wrapper(c.UpdateTask, dataSource))
+	router.DELETE("/api/lists/:listId/tasks/:taskId", c.Wrapper(c.DeleteTask, dataSource))
 
 	log.Fatal(http.ListenAndServe(":8080", router))
 }

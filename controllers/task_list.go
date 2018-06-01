@@ -40,6 +40,10 @@ func AddTaskList(reqBody io.ReadCloser, _ httprouter.Params, storage s.Storage, 
 		return nil, &ApiError{"Invalid request parameter ID", 400}
 	}
 
+	if taskList.Name == nil || *taskList.Name == "" {
+		return nil, &ApiError{"Invalid name.", 400}
+	}
+
 	createdTaskList, err := storage.AddTaskList(*taskList)
 	if err != nil {
 		panic(err)
@@ -91,7 +95,7 @@ func deleteAllTasksForList(listId string, storage s.Storage) {
 }
 
 func DeleteTaskList(_ io.ReadCloser, ps httprouter.Params, storage s.Storage, _ map[string][]string) (interface{}, *ApiError) {
-	var taskList *m.TaskList
+	taskList := &m.TaskList{}
 
 	exists := checkGivenTaskListExists(taskList, ps, storage)
 	if !exists {

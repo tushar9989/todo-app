@@ -46,6 +46,19 @@ func AddTask(reqBody io.ReadCloser, ps httprouter.Params, storage s.Storage, _ m
 		return nil, &ApiError{"Completed cannot be set when creating.", 400}
 	}
 
+	if task.Name == nil || *task.Name == "" {
+		return nil, &ApiError{"Invalid name.", 400}
+	}
+
+	if task.Description == nil || *task.Description == "" {
+		return nil, &ApiError{"Invalid description.", 400}
+	}
+
+	listExists := checkGivenTaskListExists(&m.TaskList{}, ps, storage)
+	if !listExists {
+		return nil, &ApiError{"Invalid List Id.", 400}
+	}
+
 	listId := ps.ByName("listId")
 	task.ListID = &listId
 	task.Completed = new(bool)
@@ -78,7 +91,7 @@ func UpdateTask(reqBody io.ReadCloser, ps httprouter.Params, storage s.Storage, 
 }
 
 func DeleteTask(_ io.ReadCloser, ps httprouter.Params, storage s.Storage, _ map[string][]string) (interface{}, *ApiError) {
-	var task *m.Task
+	task := &m.Task{}
 
 	exists := checkGivenTaskExists(task, ps, storage)
 	if !exists {
