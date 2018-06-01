@@ -20,6 +20,18 @@ func getTaskFromBody(reqBody io.ReadCloser) (*m.Task, error) {
 	return &t, nil
 }
 
+func checkGivenTaskExists(inputTask *m.Task, ps httprouter.Params, storage s.Storage) bool {
+	taskId := ps.ByName("taskId")
+	listId := ps.ByName("listId")
+	existingTask, err := storage.GetTask(taskId)
+	if err != nil || *existingTask.ListID != listId {
+		return false
+	}
+	inputTask.ID = &taskId
+	inputTask.ListID = &listId
+	return true
+}
+
 func AddTask(reqBody io.ReadCloser, ps httprouter.Params, storage s.Storage, _ map[string][]string) (interface{}, *ApiError) {
 	task, err := getTaskFromBody(reqBody)
 	if err != nil {
@@ -54,27 +66,15 @@ func UpdateTask(reqBody io.ReadCloser, ps httprouter.Params, storage s.Storage, 
 
 	exists := checkGivenTaskExists(task, ps, storage)
 	if !exists {
-		return nil, &ApiError{"Task not found!", 500}
+		return nil, &ApiError{"Task not found!", 400}
 	}
 
-	updatedTask, err := storage.AddTask(*task)
+	err = storage.UpdateTask(*task)
 	if err != nil {
 		panic(err)
 	}
 
-	return updatedTask, nil
-}
-
-func checkGivenTaskExists(inputTask *m.Task, ps httprouter.Params, storage s.Storage) bool {
-	taskId := ps.ByName("taskId")
-	listId := ps.ByName("listId")
-	existingTask, err := storage.GetTask(taskId)
-	if err != nil || *existingTask.ListID != listId {
-		return false
-	}
-	inputTask.ID = &taskId
-	inputTask.ListID = &listId
-	return true
+	return []string{}, nil
 }
 
 func DeleteTask(_ io.ReadCloser, ps httprouter.Params, storage s.Storage, _ map[string][]string) (interface{}, *ApiError) {
@@ -82,7 +82,7 @@ func DeleteTask(_ io.ReadCloser, ps httprouter.Params, storage s.Storage, _ map[
 
 	exists := checkGivenTaskExists(task, ps, storage)
 	if !exists {
-		return nil, &ApiError{"Task not found!", 500}
+		return nil, &ApiError{"Task not found!", 400}
 	}
 
 	err := storage.DeleteTasks(*task.ID)

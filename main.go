@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/julienschmidt/httprouter"
-	"net/http"
 	"log"
+	"net/http"
+
+	"github.com/julienschmidt/httprouter"
 	c "github.com/tushar9989/hullo/controllers"
 )
 
@@ -12,7 +13,7 @@ func main() {
 	//load db
 	//load routes with handlers
 	router := httprouter.New()
-	router.GET("/api/lists", c.Wrapper(c.GetTasksList, nil))
+	router.GET("/api/lists", c.Wrapper(c.GetTaskLists, nil))
 	router.GET("/api/lists/:listId", c.Wrapper(c.GetTaskList, nil))
 	router.POST("/api/lists", c.Wrapper(c.AddTaskList, nil))
 	router.PUT("/api/lists/:listId", c.Wrapper(c.UpdateTaskList, nil))

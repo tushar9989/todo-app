@@ -1,6 +1,6 @@
 package models
 
 type TaskList struct {
-	Name string
-	ID string
+	Name *string
+	ID   *string
 }
