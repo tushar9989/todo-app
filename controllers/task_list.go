@@ -1,27 +1,28 @@
 package controllers
 
 import (
-	"net/http"
+	"io"
+
 	"github.com/julienschmidt/httprouter"
 	s "github.com/tushar9989/hullo/storage"
 )
 
-func AddTaskList(_ http.ResponseWriter, _ *http.Request, _ httprouter.Params, _ s.Storage) (interface{}, *ApiError) {
+func AddTaskList(_ io.ReadCloser, _ httprouter.Params, _ s.Storage, _ map[string][]string) (interface{}, *ApiError) {
 	return "string", nil
 }
 
-func UpdateTaskList(_ http.ResponseWriter, _ *http.Request, _ httprouter.Params, _ s.Storage) (interface{}, *ApiError) {
+func UpdateTaskList(_ io.ReadCloser, _ httprouter.Params, _ s.Storage, _ map[string][]string) (interface{}, *ApiError) {
 	return "string", nil
 }
 
-func DeleteTaskList(_ http.ResponseWriter, _ *http.Request, _ httprouter.Params, _ s.Storage) (interface{}, *ApiError) {
+func DeleteTaskList(_ io.ReadCloser, _ httprouter.Params, _ s.Storage, _ map[string][]string) (interface{}, *ApiError) {
 	return "string", nil
 }
 
-func GetTasksList(_ http.ResponseWriter, _ *http.Request, _ httprouter.Params, _ s.Storage) (interface{}, *ApiError) {
+func GetTasksList(_ io.ReadCloser, _ httprouter.Params, _ s.Storage, _ map[string][]string) (interface{}, *ApiError) {
 	return "string", nil
 }
 
-func GetTaskList(_ http.ResponseWriter, _ *http.Request, _ httprouter.Params, _ s.Storage) (interface{}, *ApiError) {
-	return "", &ApiError{nil, "Can't display record", 404}
+func GetTaskList(_ io.ReadCloser, _ httprouter.Params, _ s.Storage, _ map[string][]string) (interface{}, *ApiError) {
+	return "", &ApiError{"Can't display record", 404}
 }

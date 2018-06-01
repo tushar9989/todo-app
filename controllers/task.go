@@ -1,27 +1,124 @@
 package controllers
 
 import (
-	"net/http"
+	"encoding/json"
+	"io"
+
 	"github.com/julienschmidt/httprouter"
+	m "github.com/tushar9989/hullo/models"
 	s "github.com/tushar9989/hullo/storage"
 )
 
-func AddTask(_ http.ResponseWriter, _ *http.Request, _ httprouter.Params, _ s.Storage) (interface{}, *ApiError) {
-	return "string", nil
+func getTaskFromBody(reqBody io.ReadCloser) (*m.Task, error) {
+	decoder := json.NewDecoder(reqBody)
+	defer reqBody.Close()
+	var t m.Task
+	err := decoder.Decode(&t)
+	if err != nil {
+		return nil, err
+	}
+	return &t, nil
 }
 
-func UpdateTask(_ http.ResponseWriter, _ *http.Request, _ httprouter.Params, _ s.Storage) (interface{}, *ApiError) {
-	return "string", nil
+func AddTask(reqBody io.ReadCloser, ps httprouter.Params, storage s.Storage, _ map[string][]string) (interface{}, *ApiError) {
+	task, err := getTaskFromBody(reqBody)
+	if err != nil {
+		return nil, &ApiError{"Unable to parse request", 400}
+	}
+
+	if task.ID != nil {
+		return nil, &ApiError{"Invalid request parameter ID", 400}
+	}
+
+	if task.Completed != nil {
+		return nil, &ApiError{"Completed cannot be set when creating.", 400}
+	}
+
+	listId := ps.ByName("listId")
+	task.ListID = &listId
+	task.Completed = new(bool)
+
+	createdTask, err := storage.AddTask(*task)
+	if err != nil {
+		panic(err)
+	}
+
+	return createdTask, nil
 }
 
-func DeleteTask(_ http.ResponseWriter, _ *http.Request, _ httprouter.Params, _ s.Storage) (interface{}, *ApiError) {
-	return "string", nil
+func UpdateTask(reqBody io.ReadCloser, ps httprouter.Params, storage s.Storage, _ map[string][]string) (interface{}, *ApiError) {
+	task, err := getTaskFromBody(reqBody)
+	if err != nil {
+		return nil, &ApiError{"Unable to parse request", 400}
+	}
+
+	exists := checkGivenTaskExists(task, ps, storage)
+	if !exists {
+		return nil, &ApiError{"Task not found!", 500}
+	}
+
+	updatedTask, err := storage.AddTask(*task)
+	if err != nil {
+		panic(err)
+	}
+
+	return updatedTask, nil
 }
 
-func GetTasks(_ http.ResponseWriter, _ *http.Request, _ httprouter.Params, _ s.Storage) (interface{}, *ApiError) {
-	return "string", nil
+func checkGivenTaskExists(inputTask *m.Task, ps httprouter.Params, storage s.Storage) bool {
+	taskId := ps.ByName("taskId")
+	listId := ps.ByName("listId")
+	existingTask, err := storage.GetTask(taskId)
+	if err != nil || *existingTask.ListID != listId {
+		return false
+	}
+	inputTask.ID = &taskId
+	inputTask.ListID = &listId
+	return true
 }
 
-func GetTask(_ http.ResponseWriter, _ *http.Request, _ httprouter.Params, _ s.Storage) (interface{}, *ApiError) {
-	return "", &ApiError{nil, "Can't display record", 500}
+func DeleteTask(_ io.ReadCloser, ps httprouter.Params, storage s.Storage, _ map[string][]string) (interface{}, *ApiError) {
+	var task *m.Task
+
+	exists := checkGivenTaskExists(task, ps, storage)
+	if !exists {
+		return nil, &ApiError{"Task not found!", 500}
+	}
+
+	err := storage.DeleteTasks(*task.ID)
+	if err != nil {
+		panic(err)
+	}
+
+	return []string{}, nil
+}
+
+func GetTask(_ io.ReadCloser, ps httprouter.Params, storage s.Storage, _ map[string][]string) (interface{}, *ApiError) {
+	taskId := ps.ByName("taskId")
+	task, err := storage.GetTask(taskId)
+	if err != nil {
+		panic(err)
+	}
+	return task, nil
+}
+
+func GetTasks(_ io.ReadCloser, ps httprouter.Params, storage s.Storage, getParams map[string][]string) (interface{}, *ApiError) {
+	pageNo, err := GetIntParamFromMap(getParams, "pageNo", 1)
+	if err != nil {
+		return nil, &ApiError{"Invalid pageNo", 400}
+	}
+
+	pageSize, err := GetIntParamFromMap(getParams, "pageSize", 10)
+	if err != nil {
+		return nil, &ApiError{"Invalid pageSize", 400}
+	}
+
+	search := GetStringParamFromMap(getParams, "search", nil)
+
+	tasks, err := storage.GetTasks(ps.ByName("listId"), pageNo, pageSize, search)
+	if err != nil {
+		panic(err)
+	}
+
+	return tasks, nil
 }
