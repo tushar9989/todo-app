@@ -2,7 +2,6 @@ package storage
 
 import (
 	"errors"
-	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -53,7 +52,6 @@ func (iMS *inMemoryStorage) UpdateTask(task m.Task) error {
 	}
 	iMS.taskMap[*task.ID] = currentTask
 	iMS.listIdToTasksMap[*currentTask.ListID][*task.ID] = currentTask
-	fmt.Println(*currentTask.Completed)
 	return nil
 }
 
@@ -61,7 +59,7 @@ func (iMS *inMemoryStorage) DeleteTasks(taskIDs ...string) error {
 	for _, taskID := range taskIDs {
 		currentTask, ok := iMS.taskMap[taskID]
 		if !ok {
-			return errors.New("Invalid task id given")
+			return errors.New("Invalid task id")
 		}
 
 		delete(iMS.listIdToTasksMap[*currentTask.ListID], *currentTask.ID)
@@ -133,7 +131,7 @@ func (iMS *inMemoryStorage) UpdateTaskList(taskList m.TaskList) error {
 func (iMS *inMemoryStorage) DeleteTaskList(listId string) error {
 	currentTaskList, ok := iMS.taskListsMap[listId]
 	if !ok {
-		return errors.New("Invalid task list id given")
+		return errors.New("Invalid task list id")
 	}
 	delete(iMS.taskListsMap, *currentTaskList.ID)
 	return nil
