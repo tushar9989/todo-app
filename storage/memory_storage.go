@@ -13,6 +13,8 @@ type inMemoryStorage struct {
 	taskListsMap     map[string]m.TaskList
 	taskMap          map[string]m.Task
 	listIdToTasksMap map[string]map[string]m.Task
+	nextTaskId       int
+	nextListId       int
 }
 
 func NewMockStorage() *inMemoryStorage {
@@ -20,12 +22,15 @@ func NewMockStorage() *inMemoryStorage {
 	p.taskListsMap = make(map[string]m.TaskList)
 	p.taskMap = make(map[string]m.Task)
 	p.listIdToTasksMap = make(map[string]map[string]m.Task)
+	p.nextTaskId = 1
+	p.nextListId = 1
 	return p
 }
 
 func (iMS *inMemoryStorage) AddTask(task m.Task) (m.Task, error) {
 	task.ID = new(string)
-	*task.ID = strconv.Itoa(len(iMS.taskMap) + 1)
+	*task.ID = strconv.Itoa(iMS.nextTaskId)
+	iMS.nextTaskId++
 	iMS.taskMap[*task.ID] = task
 	listMap, ok := iMS.listIdToTasksMap[*task.ListID]
 	if !ok {
@@ -110,7 +115,8 @@ func (iMS *inMemoryStorage) GetTasks(listID string, pageNo int, pageSize int, se
 
 func (iMS *inMemoryStorage) AddTaskList(taskList m.TaskList) (m.TaskList, error) {
 	taskList.ID = new(string)
-	*taskList.ID = strconv.Itoa(len(iMS.taskListsMap) + 1)
+	*taskList.ID = strconv.Itoa(iMS.nextListId)
+	iMS.nextListId++
 	iMS.taskListsMap[*taskList.ID] = taskList
 	iMS.listIdToTasksMap[*taskList.ID] = make(map[string]m.Task)
 	return taskList, nil
