@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"github.com/tushar9989/hullo/models"
+	"github.com/tushar9989/todo-app/internal/models"
 )
 
 type Storage interface {

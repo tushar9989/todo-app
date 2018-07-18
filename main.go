@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
-	c "github.com/tushar9989/hullo/controllers"
-	"github.com/tushar9989/hullo/storage"
+	c "github.com/tushar9989/todo-app/internal/controllers"
+	"github.com/tushar9989/todo-app/internal/storage"
 )
 
 func main() {

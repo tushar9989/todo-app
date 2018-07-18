@@ -8,10 +8,10 @@
 ## Running on a unix environment
 
 * `go get github.com/julienschmidt/httprouter`
-* create a directory for the source code `mkdir -p $HOME/go/src/github.com/tushar9989/hullo`
-* copy the source code `cp -r * $HOME/go/src/github.com/tushar9989/hullo`
-* run `go install github.com/tushar9989/hullo`
-* To run the code `/go/bin/hullo`
+* create a directory for the source code `mkdir -p $HOME/go/src/github.com/tushar9989/todo-app`
+* copy the source code `cp -r * $HOME/go/src/github.com/tushar9989/todo-app`
+* run `go install github.com/tushar9989/todo-app`
+* To run the code `/go/bin/todo-app`
 
 OR If you have Docker
 

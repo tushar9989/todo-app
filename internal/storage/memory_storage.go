@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	m "github.com/tushar9989/hullo/models"
+	m "github.com/tushar9989/todo-app/internal/models"
 )
 
 type inMemoryStorage struct {

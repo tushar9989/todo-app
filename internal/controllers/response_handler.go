@@ -8,7 +8,7 @@ import (
 	"strconv"
 
 	"github.com/julienschmidt/httprouter"
-	s "github.com/tushar9989/hullo/storage"
+	s "github.com/tushar9989/todo-app/internal/storage"
 )
 
 type ApiError struct {

@@ -5,8 +5,8 @@ import (
 	"io"
 
 	"github.com/julienschmidt/httprouter"
-	m "github.com/tushar9989/hullo/models"
-	s "github.com/tushar9989/hullo/storage"
+	m "github.com/tushar9989/todo-app/internal/models"
+	s "github.com/tushar9989/todo-app/internal/storage"
 )
 
 func getTaskFromBody(reqBody io.ReadCloser) (*m.Task, error) {
